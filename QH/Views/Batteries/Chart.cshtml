@@ -1,0 +1,110 @@
+﻿@using Highsoft.Web.Mvc.Charts
+@model QH.ViewModels.BatteryPage
+
+@Scripts.Render("~/bundles/jquery")
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+<div class="row">
+    <div class="col-md-1">
+        @using (Html.BeginForm(null, null, null, FormMethod.Post, new { @class = "form-inline", id = "BatteryFilter" }))
+        {
+            <fieldset>
+                <div class="row">
+                    <div class="col-md-2">
+                        @Html.LabelFor(model => model.ChartPartialPage.XAxis)
+                        @Html.EnumDropDownListFor(model => model.ChartPartialPage.XAxis, new { @onchange = "form.submit()" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        @Html.LabelFor(model => model.ChartPartialPage.YAxis)
+                        @Html.EnumDropDownListFor(model => model.ChartPartialPage.YAxis, new { @onchange = "form.submit()" })
+                    </div>
+                </div>
+            </fieldset>
+        }
+    </div>
+    <div class="col-md-11">
+        <div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+    </div>
+</div>
+
+<script>
+
+    $(function () {
+        cloneToolTip = null;
+        var chart = new Highcharts.Chart({
+            chart: {
+                type: 'scatter',
+                zoomType: 'xy',
+                renderTo: 'container'
+            },
+            title: {
+                text: '@(Model.ChartPartialPage.GetChartTitle())'
+            },
+            xAxis: {
+                title: {
+                    enabled: true,
+                    text: '@(Model.ChartPartialPage.GetXAxisLabel())'
+                },
+                startOnTick: true,
+                endOnTick: true,
+                showLastLabel: true
+            },
+            yAxis: {
+                title: {
+                    text: '@Model.ChartPartialPage.GetYAxisLabel()'
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'top',
+                x: 100,
+                y: 70,
+                floating: true,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
+                borderWidth: 1
+            },
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    events: {
+                        click: function (event) {
+                            console.log(event.point.index);
+                            var idx = event.point.index;
+                            window.location.href = '/Batteries/LinkToBattery?idx=' + idx;
+
+                        }
+                    }
+                },
+                scatter: {
+                    marker: {
+                        radius: 5,
+                        states: {
+                            hover: {
+                                enabled: true,
+                                lineColor: 'rgb(100,100,100)'
+                            }
+                        }
+                    },
+                    tooltip: {
+
+                        useHTML: true,
+                        borderRadius: 8,
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        headerFormat: '<div style="color:#36454d; font-size:16px">{series.name}</div><br>',
+                        pointFormat: '<a href="www.google.com">{point.x} ' + '@Model.ChartPartialPage.GetXAxisLabel()' + ', {point.y}' + '@Model.ChartPartialPage.GetYAxisLabel()' + '</a>'
+                    }
+                }
+            },
+            series: [{
+                name: 'battery',
+                data: JSON.parse('@Model.ChartPartialPage.GetBatteryChartData(Model.Batteries)')
+            }]
+        });
+    });
+
+
+</script>

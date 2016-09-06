@@ -24,6 +24,10 @@ namespace QH.Models
             : base("DefaultConnection", throwIfV1Schema: false)
         {
         }
+        public DbSet<Motor> Motors { get; set; }
+        public DbSet<Battery> Batteries { get; set; }
+        public DbSet<ThrustDataPoint> ThrustDataPoints { get; set; }
+
 
         public static ApplicationDbContext Create()
         {
